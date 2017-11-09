@@ -1,10 +1,6 @@
 package com.cmeb.cnm.firstassignment;
-trengaaaaa
-
-        package info.androidhive.jsonparsing;
 
         import android.util.Log;
-
         import java.io.BufferedInputStream;
         import java.io.BufferedReader;
         import java.io.IOException;
