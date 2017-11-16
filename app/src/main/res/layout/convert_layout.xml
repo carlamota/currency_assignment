@@ -13,7 +13,7 @@
         android:layout_marginBottom="45dp"
         android:layout_marginLeft="133dp"
         android:layout_marginStart="133dp"
-        android:onClick="View Taxes"
+        android:onClick="onViewTaxes"
         android:text="@string/viewTaxesButton"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent" />

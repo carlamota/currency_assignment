@@ -13,7 +13,7 @@ public class Currency {
     private double rate;
 
 
-    public Currency(String name, int flag, int rate) {
+    public Currency(String name, int flag, double rate) {
         this.name = name;
         this.flag = flag;
         this.rate = rate;
@@ -39,7 +39,7 @@ public class Currency {
         return rate;
     }
 
-    public void setTaxe(int rate) {
+    public void setTaxe(double rate) {
         this.rate = rate;
     }
 }
