@@ -3,21 +3,22 @@ package com.cmeb.cnm.firstassignment;
 import android.graphics.drawable.Icon;
 
 /**
- * Created by ASUS on 10/11/2017.
+
+ * Created by User on 14/11/2017.
  */
 
 public class Currency {
-
-    private String name;
+    public String name;
     private int flag;
-    private double rate;
+    public double rate;
 
 
-    public Currency(String name, int flag, double rate) {
-        this.name = name;
-        this.flag = flag;
-        this.rate = rate;
+    Currency(String n, int f, double r) {
+        name = n;
+        flag = f;
+        rate = r;
     }
+
 
     public String getName() {
         return name;
