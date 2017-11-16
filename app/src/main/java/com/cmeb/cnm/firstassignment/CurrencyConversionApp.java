@@ -43,9 +43,9 @@ public class CurrencyConversionApp extends Activity {
 
     private  ArrayList<Spinner> spinners = new ArrayList<>();
     private ArrayList<EditText> editTexts  = new ArrayList<>();
-    private int[] selections = new int[] {0, 7, 28, 2};
+    private int[] selections;
     private Integer lastChanged = -1;
-
+    private boolean initialized = false;
 //    private ListView lv;
 //    private ProgressBar pBar;
     ArrayList<Currency> currencies_global = new ArrayList<>();
@@ -59,12 +59,13 @@ public class CurrencyConversionApp extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.convert_layout);
 
+        selections = new int[] {0, 29, 8, 3};
+
         GetCurrencies getCurrencies = new GetCurrencies();
         getCurrencies.execute();
 
+
 //        initializeCurrencies();
-
-
 
         inflator = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
@@ -75,6 +76,7 @@ public class CurrencyConversionApp extends Activity {
             if(i==0) {
                 spinners.add((Spinner) findViewById(R.id.countrySpinner1));
                 editTexts.add((EditText) findViewById(R.id.editValue1));
+                editTexts.get(0).setText("1");
             }
             else if (i==1) {
                 spinners.add(i, (Spinner) findViewById(R.id.countrySpinner2));
@@ -105,6 +107,13 @@ public class CurrencyConversionApp extends Activity {
         public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
             selections[j]=pos;
             lastChanged=j;
+            if (!initialized){
+                if (j==3){
+                    initialized=true;
+                    lastChanged = 0;
+                }
+
+                            }
         }
 
         public void onNothingSelected(AdapterView parent) {}
@@ -372,7 +381,7 @@ public class CurrencyConversionApp extends Activity {
 
                     currencies_global.add(new Currency("Euro", (R.drawable.europe), 1));
 
-                    for (int k = 0; k < names.length()-5; k++) {
+                    for (int k = 0; k < names.length(); k++) {
 
                         switch (names.getString(k)) {
                             case ("BGN"): {
@@ -503,15 +512,14 @@ public class CurrencyConversionApp extends Activity {
                                 break;
                             }
 
-                            /*
+
                             case("SGD"):{
-
-
+                                currencies_global.add(new Currency("Singapore Dollar", (R.drawable.singapore), currencies.getDouble(names.getString(k))));
                                 break;
                             }
-                            */
+
                             case("THB"):{
-                                currencies_global.add(new Currency("Singapore Dollar", (R.drawable.singapore), currencies.getDouble(names.getString(k))));
+                                currencies_global.add(new Currency("Thai Baht", (R.drawable.thailand), currencies.getDouble(names.getString(k))));
                                 break;
                             }
 
