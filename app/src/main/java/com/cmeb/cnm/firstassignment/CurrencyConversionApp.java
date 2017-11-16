@@ -43,7 +43,7 @@ public class CurrencyConversionApp extends Activity {
 
     private  ArrayList<Spinner> spinners = new ArrayList<>();
     private ArrayList<EditText> editTexts  = new ArrayList<>();
-    private int[] selections = new int[] {0,1,2,3};
+    private int[] selections = new int[] {0, 7, 28, 2};
     private Integer lastChanged = -1;
 
 //    private ListView lv;
@@ -104,6 +104,7 @@ public class CurrencyConversionApp extends Activity {
 
         public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
             selections[j]=pos;
+            lastChanged=j;
         }
 
         public void onNothingSelected(AdapterView parent) {}
