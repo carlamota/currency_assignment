@@ -12,6 +12,7 @@ import java.util.ArrayList;
  * Created by User on 14/11/2017.
  */
 
+
 public class Taxes_check extends CurrencyConversionApp {
 
     ArrayList<Currency> currencies_gb = new ArrayList<Currency>();

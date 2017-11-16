@@ -4,4 +4,6 @@
 
     <string name="back">Back</string>
     <string name="country_name" />
+    <string name="convertButton">Convert</string>
+    <string name="viewTaxesButton">View Taxes</string>
 </resources>
