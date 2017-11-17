@@ -3,16 +3,22 @@ package com.cmeb.cnm.firstassignment;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
 import android.media.Image;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.constraint.ConstraintLayout;
 import android.text.Editable;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
@@ -36,8 +42,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static android.content.ContentValues.TAG;
 
@@ -48,8 +65,8 @@ public class CurrencyConversionApp extends Activity {
     private int[] selections;
     private Integer lastChanged;
     private boolean initialized;
-
-    ArrayList<Currency> currencies_global = new ArrayList<>();
+    private boolean internetConnection;
+    ArrayList<Currency> currencies_global = null;
     LayoutInflater inflator;
     // URL to get contacts JSON
     private static String url = "https://api.fixer.io/latest";
@@ -59,36 +76,43 @@ public class CurrencyConversionApp extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.convert_layout);
+        Button btn_taxes = findViewById(R.id.viewTaxesButton);
 
+        btn_taxes.setOnClickListener(new View.OnClickListener(){
+            public void onClick (View v){
+                Log.d("aqui","aqui");
+                Intent intent = new Intent (CurrencyConversionApp.this, Taxes_check.class);
+                startActivity(intent);
+            }
+        });
         if (savedInstanceState == null){
             selections = new int[] {0, 29, 8, 3};
             lastChanged = 0;
             initialized = false;
-        }/*
-        else {
-            initialized = savedInstanceState.getBoolean("initialized");
-            //   ArrayList<? extends Parcelable> editTexts = ((ArrayList<? extends Parcelable>) savedInstanceState.getParcelableArrayList("editTexts"));
-            selections = savedInstanceState.getIntArray("selections");
-            lastChanged = savedInstanceState.getInt("lastChanged");
-        }*/
+        }
 
-        GetCurrencies getCurrencies = new GetCurrencies();
-        getCurrencies.execute();
+          if (currencies_global==null) {
+              GetCurrencies getCurrencies = new GetCurrencies();
+              getCurrencies.execute();
 
+              if(internetConnection)
+                  write();
+              else
+                  read();
+          }
 
-//        initializeCurrencies();
 
         inflator = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-    private void initializeRows(int[] selection) {
+    private void initializeRows() {
 
         for (int i=0; i<4; i++){
             if(i==0) {
                 spinners.add((Spinner) findViewById(R.id.countrySpinner1));
                 editTexts.add((EditText) findViewById(R.id.editValue1));
                 if (!initialized)
-                   editTexts.get(0).setText("1.0");
+                   editTexts.get(0).setText("1.00");
             }
             else if (i==1) {
                 spinners.add(i, (Spinner) findViewById(R.id.countrySpinner2));
@@ -104,9 +128,25 @@ public class CurrencyConversionApp extends Activity {
             }
 
             spinners.get(i).setAdapter(new NewAdapter());
-            spinners.get(i).setSelection(selection[i]);
+            spinners.get(i).setSelection(selections[i]);
             spinners.get(i).setOnItemSelectedListener( new NewItemSelectedListener(i));
-            editTexts.get(i).addTextChangedListener(new NewTextWatcher(i));
+            editTexts.get(i).setOnTouchListener(new NewOnTouchListener(i));
+            editTexts.get(i).setFilters(new InputFilter[] {new DecimalDigitsInputFilter(2)});
+        }
+    }
+
+   public class NewOnTouchListener implements View.OnTouchListener {
+       int i;
+
+       public NewOnTouchListener(int i) {
+           this.i = i;
+       }
+
+       @Override
+       public boolean onTouch(View view, MotionEvent motionEvent) {
+            lastChanged = i;
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+            return false;
         }
     }
 
@@ -119,6 +159,7 @@ public class CurrencyConversionApp extends Activity {
         public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
             selections[j]=pos;
             lastChanged=j;
+
             if (!initialized){
                 if (j==3){
                     initialized=true;
@@ -129,7 +170,7 @@ public class CurrencyConversionApp extends Activity {
 
         public void onNothingSelected(AdapterView parent) {}
     }
-
+/*
     class NewTextWatcher implements android.text.TextWatcher {
 
         private int position;
@@ -148,178 +189,41 @@ public class CurrencyConversionApp extends Activity {
 
         @Override
         public void afterTextChanged(Editable editable) {
-            lastChanged = position;
+      /*      String newValue = editable.toString();
+
+            String oldValue = (String) editTexts.get(position).getTag();
+            if (newValue.length() > 0) {
+                editTexts.get(position).setTag(newValue);
+            }
+
+            boolean itReallyChanged = oldValue != null && !newValue.equals(oldValue) && !newValue.isEmpty();
+            if (itReallyChanged) {
+                lastChanged = position;
+            }
         }
     }
-
-    // CASO NAO HAJA NET:
-    private void initializeCurrencies() {
-/*
-        currencies_global.add(new Currency("Euro", R.drawable.europe, 1));
-
-        for (int i = 0; i<currencies_global.size(); i++)
-        switch (currencies_global.get(i).getName()) {
-            case ("BGN"): {
-                currencies_global.get(i).setName("Bulgarian Lev");
-                currencies_global.get(i).setFlag(R.drawable.bulgaria);
-            }
-            case ("BRL"): {
-                currencies_global.get(i).setName("Brazilian Real");
-                currencies_global.get(i).setFlag(R.drawable.brazil);
-            }
-            case ("CAD"): {
-                currencies_global.get(i).setName("Canadian Dollar");
-                currencies_global.get(i).setFlag(R.drawable.canada);
-            }
-            case("CHF"):{
-                currencies_global.get(i).setName("Swiss Franc");
-                currencies_global.get(i).setFlag(R.drawable.switzerland);
-            }
-            case("CNY"):{
-                currencies_global.get(i).setName("Chinese Yuan");
-                currencies_global.get(i).setFlag(R.drawable.china);
-            }
-            case("CZK"):{
-                currencies_global.get(i).setName("Czech Koruna");
-                currencies_global.get(i).setFlag(R.drawable.czech);
-            }
-            case("GBP"):{
-                currencies_global.get(i).setName("British Pound");
-                currencies_global.get(i).setFlag(R.drawable.unitedkingdom);
-            }
-            case("HKD"):{
-                currencies_global.get(i).setName("Hong Kong Dollar");
-                currencies_global.get(i).setFlag(R.drawable.hongkong);
-            }
-            case("HRK"):{
-                currencies_global.get(i).setName("Croatian Kuna");
-                currencies_global.get(i).setFlag(R.drawable.croatia);
-            }
-            case("HUF"):{
-                currencies_global.get(i).setName("Hungarian Forint");
-                currencies_global.get(i).setFlag(R.drawable.hungary);
-            }
-            case("IDR"):{
-                currencies_global.get(i).setName("Indesian Rupiah");
-                currencies_global.get(i).setFlag(R.drawable.indonesia);
-            }
-            case("ILS"):{
-                currencies_global.get(i).setName("Isreali New Shekel");
-                currencies_global.get(i).setFlag(R.drawable.israel);
-            }
-            case("INR"):{
-                currencies_global.get(i).setName("Indian Rupee");
-                currencies_global.get(i).setFlag(R.drawable.india);
-            }
-            case("JPY"):{
-                currencies_global.get(i).setName("Japanese Yen");
-                currencies_global.get(i).setFlag(R.drawable.japan);
-            }
-            case("KRW"):{
-                currencies_global.get(i).setName("South Korean Won");
-                currencies_global.get(i).setFlag(R.drawable.southkorea);
-            }
-            case("MXN"):{
-                currencies_global.get(i).setName("Mexican Peso");
-                currencies_global.get(i).setFlag(R.drawable.mexico);
-            }
-            case("MYR"):{
-                currencies_global.get(i).setName("Malaysian Ringgit");
-                currencies_global.get(i).setFlag(R.drawable.malaysia);
-            }
-            case("NOK"):{
-                currencies_global.get(i).setName("Norwegian Krone");
-                currencies_global.get(i).setFlag(R.drawable.norway);
-            }
-            case("NZD"):{
-                currencies_global.get(i).setName("New Zeeland Dollar");
-                currencies_global.get(i).setFlag(R.drawable.newzealand);
-            }
-            case("PHP"):{
-                currencies_global.get(i).setName("Philippine Piso");
-                currencies_global.get(i).setFlag(R.drawable.philippines);
-            }
-            case("PLN"):{
-                currencies_global.get(i).setName("Philippine Piso");
-                currencies_global.get(i).setFlag(R.drawable.philippines);
-            }
-            case("RON"):{
-                currencies_global.get(i).setName("Romanian Leu");
-                currencies_global.get(i).setFlag(R.drawable.romania);
-            }
-            case("RUB"):{
-                currencies_global.get(i).setName("Russian Rubble");
-                currencies_global.get(i).setFlag(R.drawable.russia);
-            }
-            case("SEK"):{
-                currencies_global.get(i).setName("Swedish Krona");
-                currencies_global.get(i).setFlag(R.drawable.sweden);
-            }
-            case("SGD"):{
-                currencies_global.get(i).setName("");
-                currencies_global.get(i).setFlag(R.drawable.philippines);
-            }
-            case("THB"):{
-                currencies_global.get(i).setName("Singapore Dollar");
-                currencies_global.get(i).setFlag(R.drawable.singapore);
-            }
-            case("TRY"):{
-                currencies_global.get(i).setName("Turkish Lira");
-                currencies_global.get(i).setFlag(R.drawable.turkey);
-            }
-            case("USD"):{
-                currencies_global.get(i).setName("USA Dollar");
-                currencies_global.get(i).setFlag(R.drawable.usa);
-            }
-            case("ZAR"): {
-                currencies_global.get(i).setName("South African Rand");
-                currencies_global.get(i).setFlag(R.drawable.southafrica);
-            }
-            case("AUD"):{
-                currencies_global.get(i).setName("Australian Dollar");
-                currencies_global.get(i).setFlag(R.drawable.australia);
-            }
 */
-
-
-            currencies_global.add(new Currency("USA dollar", R.drawable.usa, 1));
-            currencies_global.add(new Currency("Euro", R.drawable.europe, 2));
-            currencies_global.add(new Currency("Japanese yen", R.drawable.japan, 3));
-            currencies_global.add(new Currency("Pound sterling", R.drawable.unitedkingdom, 4));
-            currencies_global.add(new Currency("Australian dollar", R.drawable.australia, 5));
-            currencies_global.add(new Currency("Canadian dollar", R.drawable.canada, 6));
-            currencies_global.add(new Currency("Swiss fran", R.drawable.switzerland, 2));
-            currencies_global.add(new Currency("Renminbi", R.drawable.china, 2));
-            currencies_global.add(new Currency("Swedish krona", R.drawable.sweden, 2));
-            currencies_global.add(new Currency("New Zealand dollar", R.drawable.newzealand, 2));
-            currencies_global.add(new Currency("Mexican pesa", R.drawable.mexico, 2));
-            currencies_global.add(new Currency("Singapore dollar", R.drawable.singapore, 2));
-            currencies_global.add(new Currency("Hong Kong dollar", R.drawable.hongkong, 2));
-            currencies_global.add(new Currency("Norwegian krone", R.drawable.norway, 2));
-            currencies_global.add(new Currency("Turkish lira", R.drawable.turkey, 2));
-            currencies_global.add(new Currency("South Korean won", R.drawable.southkorea, 2));
-            currencies_global.add(new Currency("Russian ruble", R.drawable.russia, 2));
-            currencies_global.add(new Currency("Indian rupee", R.drawable.india, 2));
-            currencies_global.add(new Currency("Brazilian real", R.drawable.brazil, 2));
-            currencies_global.add(new Currency("South African rand", R.drawable.southafrica, 2));
-
-      //  }
-    }
-
-
     public void onConvert(View v) {
             Double taxeProportion;
             Double newValue;
+            Double insertedValue;
             Double referenceTaxe = currencies_global.get(selections[lastChanged]).getRate();
-            Double insertedValue = Double.parseDouble(editTexts.get(lastChanged).getText().toString());
+          //  int referencePosition = lastChanged;
+
+        if(editTexts.get(lastChanged).getText().toString().length() > 0)
+            insertedValue = Double.parseDouble(editTexts.get(lastChanged).getText().toString());
+        else
+            insertedValue = 1.00;
+
 
             for (int j = 0; j < 4; j++) {
                 if (j != lastChanged) {
                     taxeProportion = currencies_global.get(selections[j]).getRate() / referenceTaxe;
                     newValue = insertedValue * taxeProportion;
-                    editTexts.get(j).setText(newValue.toString());
-
+                    editTexts.get(j).setText(String.format("%.2f", newValue).replaceAll(",", "."));
+                    editTexts.get(j).setTextColor(Color.parseColor("#ff0099cc"));
                 }
+                else editTexts.get(j).setTextColor(Color.GRAY);
             }
 
     }
@@ -350,14 +254,45 @@ public class CurrencyConversionApp extends Activity {
                 TextView currencyName = convertView.findViewById(R.id.countryNameLabel);
                 currencyName.setText(currencies_global.get(i).getName());
             }
-            else{
-                ImageView icon = convertView.findViewById(R.id.flag);
-                icon.setImageResource(currencies_global.get(i).getFlag());
-                TextView currencyName = convertView.findViewById(R.id.countryNameLabel);
-                currencyName.setText(currencies_global.get(i).getName());
+            return convertView;
+        }
+
+
+        @Override
+        public boolean isEnabled(int position){
+            if(position == selections[0] || position == selections[1] || position == selections[2] || position == selections[3])
+            {
+                //Disable the third item of spinner.
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        @Override
+        public View getDropDownView(int position, View convertView,ViewGroup parent)
+        {
+            convertView = inflator.inflate(R.layout.dropdown_layout, null);
+            ImageView icon = convertView.findViewById(R.id.flag);
+            TextView currencyName = convertView.findViewById(R.id.countryNameLabel);
+
+            if(position == selections[0] || position == selections[1] || position == selections[2] || position == selections[3]) {
+
+                icon.setImageResource(currencies_global.get(position).getFlag());
+                currencyName.setText(currencies_global.get(position).getName());
+                currencyName.setTextColor(Color.parseColor("#bcbcbb"));
+            }
+            else {
+
+                icon.setImageResource(currencies_global.get(position).getFlag());
+                currencyName.setText(currencies_global.get(position).getName());
+
             }
             return convertView;
         }
+
     }
 
     public void onViewTaxes(View v) {
@@ -368,11 +303,6 @@ public class CurrencyConversionApp extends Activity {
 
 
     private class GetCurrencies extends AsyncTask<Void, Void, Void> {
-        //        @Override
-      //  protected void onPreExecute(){
-            //shoing progress bar
-       //     ProgressBar  pBar = new ProgressBar(this, null, android.R.attr.progressBarStyleSmall);
-     //   }
         @Override
         protected Void doInBackground(Void... arg0) {
             HttpHandler sh = new HttpHandler();
@@ -384,13 +314,14 @@ public class CurrencyConversionApp extends Activity {
 
             if (jsonStr != null) {
                 try {
+                    internetConnection = true;
                     JSONObject jsonObj = new JSONObject(jsonStr);
 
                     // Getting JSON Object node
                     JSONObject currencies = jsonObj.getJSONObject("rates");
 
                     JSONArray names = currencies.names();
-
+                    currencies_global = new ArrayList<>();
                     currencies_global.add(new Currency("Euro", (R.drawable.europe), 1));
 
                     for (int k = 0; k < names.length(); k++) {
@@ -573,21 +504,21 @@ public class CurrencyConversionApp extends Activity {
                     @Override
                     public void run() {
                         Toast.makeText(getApplicationContext(),
-                                "Couldn't get json from server. Check LogCat for possible errors!",
+                                "No Internet Connection!",
                                 Toast.LENGTH_LONG)
                                 .show();
+                        internetConnection = false;
                     }
                 });
+
             }
 
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    initializeRows(selections);
+                   initializeRows();
                 }
             });
-
-
 
             return null;
 
@@ -598,7 +529,7 @@ public class CurrencyConversionApp extends Activity {
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
 
-        savedInstanceState.putBoolean("initialized", true);
+        savedInstanceState.putBoolean("initialized", initialized);
         savedInstanceState.putIntArray("selections", selections);
         savedInstanceState.putInt("lastChanged", lastChanged);
         super.onSaveInstanceState(savedInstanceState);
@@ -612,6 +543,109 @@ public class CurrencyConversionApp extends Activity {
         initialized = savedInstanceState.getBoolean("initialized");
         selections = savedInstanceState.getIntArray("selections");
         lastChanged = savedInstanceState.getInt("lastChanged");
+    }
+
+    public class DecimalDigitsInputFilter implements InputFilter {
+
+        private final int decimalDigits;
+
+        /**
+         * Constructor.
+         *
+         * @param decimalDigits maximum decimal digits
+         */
+        public DecimalDigitsInputFilter(int decimalDigits) {
+            this.decimalDigits = decimalDigits;
+        }
+
+        @Override
+        public CharSequence filter(CharSequence source,
+                                   int start,
+                                   int end,
+                                   Spanned dest,
+                                   int dstart,
+                                   int dend) {
+
+
+            int dotPos = -1;
+            int len = dest.length();
+            for (int i = 0; i < len; i++) {
+                char c = dest.charAt(i);
+                if (c == '.' || c == ',') {
+                    dotPos = i;
+                    break;
+                }
+            }
+            if (dotPos >= 0) {
+
+                // protects against many dots
+                if (source.equals(".") || source.equals(","))
+                {
+                    return "";
+                }
+                // if the text is entered before the dot
+                if (dend <= dotPos) {
+                    return null;
+                }
+                if (len - dotPos > decimalDigits) {
+                    return "";
+                }
+            }
+
+            return null;
+        }
+
+    }
+
+    public void onRefresh (View v){
+
+        GetCurrencies getCurrencies = new GetCurrencies();
+        getCurrencies.execute();
+        if(internetConnection)
+        write();
+
+    }
+
+    public void write(){
+        String filename = "currencies_global.srl";
+        ObjectOutput out = null;
+
+        try {
+            out = new ObjectOutputStream(new FileOutputStream(new File(getFilesDir(),"")+File.separator+filename));
+
+            out.writeObject(currencies_global);
+            out.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void read(){
+        ObjectInputStream input;
+        String filename = "currencies_global.srl";
+
+        try {
+            input = new ObjectInputStream(new FileInputStream(new File(new File(getFilesDir(),"")+File.separator+filename)));
+            currencies_global = null;
+            currencies_global = (ArrayList<Currency>) input.readObject();
+            Log.v("serialization","Currencies!");
+            input.close();
+        } catch (StreamCorruptedException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            Toast.makeText(getApplicationContext(),
+                    "Empty Database!",
+                    Toast.LENGTH_LONG)
+                    .show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
     }
 
 }

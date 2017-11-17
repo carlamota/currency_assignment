@@ -2,12 +2,14 @@ package com.cmeb.cnm.firstassignment;
 
 import android.graphics.drawable.Icon;
 
+import java.io.Serializable;
+
 /**
 
  * Created by User on 14/11/2017.
  */
 
-public class Currency {
+public class Currency implements Serializable{
     public String name;
     private int flag;
     public double rate;
