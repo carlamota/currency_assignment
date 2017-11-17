@@ -6,6 +6,7 @@ import android.content.Context;
 import android.media.Image;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.constraint.ConstraintLayout;
 import android.text.Editable;
 import android.util.Log;
@@ -36,6 +37,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import static android.content.ContentValues.TAG;
 
@@ -44,10 +46,9 @@ public class CurrencyConversionApp extends Activity {
     private  ArrayList<Spinner> spinners = new ArrayList<>();
     private ArrayList<EditText> editTexts  = new ArrayList<>();
     private int[] selections;
-    private Integer lastChanged = -1;
-    private boolean initialized = false;
-//    private ListView lv;
-//    private ProgressBar pBar;
+    private Integer lastChanged;
+    private boolean initialized;
+
     ArrayList<Currency> currencies_global = new ArrayList<>();
     LayoutInflater inflator;
     // URL to get contacts JSON
@@ -59,7 +60,17 @@ public class CurrencyConversionApp extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.convert_layout);
 
-        selections = new int[] {0, 29, 8, 3};
+        if (savedInstanceState == null){
+            selections = new int[] {0, 29, 8, 3};
+            lastChanged = 0;
+            initialized = false;
+        }/*
+        else {
+            initialized = savedInstanceState.getBoolean("initialized");
+            //   ArrayList<? extends Parcelable> editTexts = ((ArrayList<? extends Parcelable>) savedInstanceState.getParcelableArrayList("editTexts"));
+            selections = savedInstanceState.getIntArray("selections");
+            lastChanged = savedInstanceState.getInt("lastChanged");
+        }*/
 
         GetCurrencies getCurrencies = new GetCurrencies();
         getCurrencies.execute();
@@ -76,7 +87,8 @@ public class CurrencyConversionApp extends Activity {
             if(i==0) {
                 spinners.add((Spinner) findViewById(R.id.countrySpinner1));
                 editTexts.add((EditText) findViewById(R.id.editValue1));
-                editTexts.get(0).setText("1");
+                if (!initialized)
+                   editTexts.get(0).setText("1.0");
             }
             else if (i==1) {
                 spinners.add(i, (Spinner) findViewById(R.id.countrySpinner2));
@@ -112,8 +124,7 @@ public class CurrencyConversionApp extends Activity {
                     initialized=true;
                     lastChanged = 0;
                 }
-
-                            }
+            }
         }
 
         public void onNothingSelected(AdapterView parent) {}
@@ -307,6 +318,7 @@ public class CurrencyConversionApp extends Activity {
                     taxeProportion = currencies_global.get(selections[j]).getRate() / referenceTaxe;
                     newValue = insertedValue * taxeProportion;
                     editTexts.get(j).setText(newValue.toString());
+
                 }
             }
 
@@ -566,7 +578,6 @@ public class CurrencyConversionApp extends Activity {
                                 .show();
                     }
                 });
-
             }
 
             runOnUiThread(new Runnable() {
@@ -583,24 +594,24 @@ public class CurrencyConversionApp extends Activity {
         }
 
     }
-//        @Override
-//        protected void onPostExecute(Void result) {
-//            super.onPostExecute(result);
-//            // Dismiss the progress dialog
-////            if (pDialog.isShowing())
-////                pDialog.dismiss();
-//            /**
-//             * Updating parsed JSON data into ListView
-//             * */
-//            ListAdapter adapter = new SimpleAdapter(
-//                    CurrencyConversionApp.this, currencies_global,
-//                    R.layout.taxes_layout, new String[]{"currency_name", "currency_rate"},
-//                    new int[]{R.id.currency_name, R.id.currency_rate});
-//
-//            lv.setAdapter(adapter);
-//        }
 
-        //   }
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
 
+        savedInstanceState.putBoolean("initialized", true);
+        savedInstanceState.putIntArray("selections", selections);
+        savedInstanceState.putInt("lastChanged", lastChanged);
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+
+        super.onRestoreInstanceState(savedInstanceState);
+
+        initialized = savedInstanceState.getBoolean("initialized");
+        selections = savedInstanceState.getIntArray("selections");
+        lastChanged = savedInstanceState.getInt("lastChanged");
+    }
 
 }

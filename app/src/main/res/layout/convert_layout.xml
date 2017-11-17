@@ -1,33 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:visibility="visible">
 
-    <Button
-        android:id="@+id/viewTaxesButton"
-        android:layout_width="118dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="45dp"
-        android:layout_marginLeft="133dp"
-        android:layout_marginStart="133dp"
-        android:onClick="onViewTaxes"
-        android:text="@string/viewTaxesButton"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent" />
 
     <LinearLayout
-        android:layout_width="278dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="54dp"
-        android:layout_marginStart="54dp"
-        android:layout_marginTop="72dp"
+        android:layout_width="310dp"
+        android:layout_height="345dp"
+        android:layout_marginStart="25dp"
         android:orientation="vertical"
         android:weightSum="1"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="90dp"
+        android:layout_marginLeft="5dp"
+        app:layout_constraintLeft_toLeftOf="parent">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -36,8 +25,10 @@
 
             <Spinner
                 android:id="@+id/countrySpinner1"
-                android:layout_width="195dp"
-                android:layout_height="52dp"
+                android:layout_width="200dp"
+                android:layout_height="45dp"
+                android:background="@color/colorPrimary"
+                android:popupBackground="@color/colorPrimary"
                 tools:layout_editor_absoluteX="8dp"
                 tools:layout_editor_absoluteY="0dp" />
 
@@ -47,7 +38,11 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:ems="10"
-                android:inputType="number" />
+                android:inputType="number"
+                android:textAlignment="center"
+                android:textColor="@android:color/holo_blue_dark"
+                android:textSize="20sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
@@ -57,8 +52,9 @@
 
             <Spinner
                 android:id="@+id/countrySpinner2"
-                android:layout_width="195dp"
-                android:layout_height="52dp"
+                android:layout_width="200dp"
+                android:layout_height="45dp"
+                android:background="@color/colorPrimary"
                 tools:layout_editor_absoluteX="8dp"
                 tools:layout_editor_absoluteY="0dp" />
 
@@ -68,7 +64,14 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:ems="10"
-                android:inputType="number" />
+
+                android:inputType="numberDecimal"
+                android:digits="0123456789."
+
+                android:textAlignment="center"
+                android:textColor="@android:color/holo_blue_dark"
+                android:textSize="20sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
@@ -78,8 +81,10 @@
 
             <Spinner
                 android:id="@+id/countrySpinner3"
-                android:layout_width="195dp"
-                android:layout_height="52dp"
+                android:layout_width="200dp"
+                android:layout_height="45dp"
+                android:background="@color/colorPrimary"
+                android:textColor="@android:color/holo_blue_dark"
                 tools:layout_editor_absoluteX="8dp"
                 tools:layout_editor_absoluteY="0dp" />
 
@@ -89,7 +94,11 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:ems="10"
-                android:inputType="number" />
+                android:inputType="number"
+                android:textAlignment="center"
+                android:textColor="@android:color/holo_blue_dark"
+                android:textSize="20sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
@@ -99,8 +108,9 @@
 
             <Spinner
                 android:id="@+id/countrySpinner4"
-                android:layout_width="195dp"
-                android:layout_height="52dp"
+                android:layout_width="200dp"
+                android:layout_height="45dp"
+                android:background="@color/colorPrimary"
                 tools:layout_editor_absoluteX="8dp"
                 tools:layout_editor_absoluteY="0dp" />
 
@@ -110,15 +120,40 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:ems="10"
-                android:inputType="number" />
+                android:inputType="number"
+                android:textAlignment="center"
+                android:textColor="@android:color/holo_blue_dark"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+
         </LinearLayout>
 
         <Button
             android:id="@+id/convertButton"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
+            android:layout_marginTop="20dp"
+            android:background="@color/colorPrimary"
+            android:backgroundTint="@android:color/holo_blue_dark"
+            android:elevation="0dp"
             android:onClick="onConvert"
-            android:text="@string/convertButton" />
+            android:text="@string/convertButton"
+            android:textColor="@android:color/background_light" />
+
+        <Button
+            android:id="@+id/viewTaxesButton"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="5dp"
+            android:background="@android:color/darker_gray"
+            android:backgroundTint="@android:color/darker_gray"
+            android:onClick="onViewTaxes"
+            android:text="@string/viewTaxesButton"
+            android:textColor="@android:color/background_light"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent" />
 
     </LinearLayout>
 
