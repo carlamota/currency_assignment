@@ -13,7 +13,6 @@ import java.util.ArrayList;
  */
 
 
-/*
 public class Taxes_check extends CurrencyConversionApp {
 
     ArrayList<Currency> currencies_gb = new ArrayList<Currency>();
@@ -45,4 +44,3 @@ public class Taxes_check extends CurrencyConversionApp {
 
     }
 }
-*/
