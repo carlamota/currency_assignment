@@ -50,6 +50,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -60,13 +61,16 @@ import static android.content.ContentValues.TAG;
 
 public class CurrencyConversionApp extends Activity {
 
+    Button taxesButton;
+
     private  ArrayList<Spinner> spinners = new ArrayList<>();
     private ArrayList<EditText> editTexts  = new ArrayList<>();
     private int[] selections;
     private Integer lastChanged;
     private boolean initialized;
     private boolean internetConnection;
-    ArrayList<Currency> currencies_global = null;
+
+    private ArrayList<Currency> currencies_global = null;
     LayoutInflater inflator;
     // URL to get contacts JSON
     private static String url = "https://api.fixer.io/latest";
@@ -76,15 +80,9 @@ public class CurrencyConversionApp extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.convert_layout);
-        Button btn_taxes = findViewById(R.id.viewTaxesButton);
 
-        btn_taxes.setOnClickListener(new View.OnClickListener(){
-            public void onClick (View v){
-                Log.d("aqui","aqui");
-                Intent intent = new Intent (CurrencyConversionApp.this, Taxes_check.class);
-                startActivity(intent);
-            }
-        });
+        final String teste = "TESTE!!";
+
         if (savedInstanceState == null){
             selections = new int[] {0, 29, 8, 3};
             lastChanged = 0;
@@ -101,6 +99,18 @@ public class CurrencyConversionApp extends Activity {
                   read();
           }
 
+        taxesButton = findViewById(R.id.viewTaxesButton);
+        taxesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent("second_filter");
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("CURRENCIES", currencies_global);
+
+                i.putExtra("BUNDLE", bundle);
+                startActivity(i);
+            }
+        });
 
         inflator = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
@@ -170,51 +180,17 @@ public class CurrencyConversionApp extends Activity {
 
         public void onNothingSelected(AdapterView parent) {}
     }
-/*
-    class NewTextWatcher implements android.text.TextWatcher {
 
-        private int position;
-
-        public NewTextWatcher(int i) {
-            this.position = i;
-        }
-
-        @Override
-        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-        }
-
-        @Override
-        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-        }
-
-        @Override
-        public void afterTextChanged(Editable editable) {
-      /*      String newValue = editable.toString();
-
-            String oldValue = (String) editTexts.get(position).getTag();
-            if (newValue.length() > 0) {
-                editTexts.get(position).setTag(newValue);
-            }
-
-            boolean itReallyChanged = oldValue != null && !newValue.equals(oldValue) && !newValue.isEmpty();
-            if (itReallyChanged) {
-                lastChanged = position;
-            }
-        }
-    }
-*/
     public void onConvert(View v) {
             Double taxeProportion;
             Double newValue;
             Double insertedValue;
             Double referenceTaxe = currencies_global.get(selections[lastChanged]).getRate();
-          //  int referencePosition = lastChanged;
 
         if(editTexts.get(lastChanged).getText().toString().length() > 0)
             insertedValue = Double.parseDouble(editTexts.get(lastChanged).getText().toString());
         else
             insertedValue = 1.00;
-
 
             for (int j = 0; j < 4; j++) {
                 if (j != lastChanged) {

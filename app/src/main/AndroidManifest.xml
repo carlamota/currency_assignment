@@ -17,8 +17,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Taxes_check"
-            android:theme="@style/AppTheme"/>
+        <activity android:name=".Taxes_check">
+            <intent-filter>
+                <action android:name="second_filter" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
