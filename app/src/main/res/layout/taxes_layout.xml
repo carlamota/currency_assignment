@@ -34,8 +34,7 @@
             android:layout_marginTop="10dp"
             android:text="Reference Currency"
             android:textAllCaps="false"
-            android:textColor="?android:attr/editTextColor"
-            android:textStyle="bold" />
+            android:textColor="?android:attr/colorForeground" />
 
         <Spinner
             android:id="@+id/spinner_taxes"
@@ -59,19 +58,17 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Currency"
-                android:textColor="@android:color/background_dark"
-                android:textStyle="bold" />
+                android:textColor="?android:attr/colorForeground" />
 
             <TextView
                 android:id="@+id/textView2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="10dp"
+                android:layout_marginRight="15dp"
                 android:layout_weight="1"
                 android:text="Taxe"
                 android:textAlignment="viewEnd"
-                android:textColor="@android:color/background_dark"
-                android:textStyle="bold" />
+                android:textColor="@android:color/black" />
         </LinearLayout>
 
         <ListView

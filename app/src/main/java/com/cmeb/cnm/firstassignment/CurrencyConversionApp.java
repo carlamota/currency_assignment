@@ -193,6 +193,7 @@ public class CurrencyConversionApp extends Activity {
        @Override
        public boolean onTouch(View view, MotionEvent motionEvent) {
             lastChanged = i;
+            initialized = true;
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
             return false;
         }
@@ -219,10 +220,9 @@ public class CurrencyConversionApp extends Activity {
                 lastChanged = j;
 
                 if (!initialized) {
-                    if (j == 3) {
+
                         initialized = true;
-                        lastChanged = 0;
-                    }
+
                 }
             }
         }

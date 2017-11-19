@@ -9,33 +9,56 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="297dp"
         android:layout_marginLeft="40dp"
-        android:layout_marginTop="30dp"
-        android:layout_weight="0.88"
+        android:layout_marginTop="10dp"
         android:orientation="horizontal"
         android:weightSum="1">
 
         <LinearLayout
             android:layout_width="320dp"
-            android:layout_height="230dp"
+            android:layout_height="297dp"
             android:layout_marginLeft="20dp"
-            android:layout_marginTop="5dp"
+            android:layout_weight="0.04"
             android:orientation="vertical"
             android:weightSum="1"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Currency Conversion"
+                android:textColor="@android:color/holo_blue_dark"
+                android:textSize="24sp" />
+
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="55dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="25dp">
+
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="255dp"
+                    android:layout_weight="1"
+                    android:text="Value"
+                    android:textAlignment="textEnd"
+                    android:textColor="?android:attr/textColorHint" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="45dp"
                 android:orientation="horizontal">
 
                 <Spinner
                     android:id="@+id/countrySpinner1"
                     android:layout_width="220dp"
-                    android:layout_height="45dp"
-                    android:layout_marginTop="3dp"
+                    android:layout_height="40dp"
                     android:background="@android:color/background_light"
                     tools:layout_editor_absoluteX="8dp"
                     tools:layout_editor_absoluteY="0dp" />
@@ -45,9 +68,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
+                    android:digits="0123456789."
                     android:ems="10"
                     android:inputType="numberDecimal"
-                    android:digits="0123456789."
                     android:textAlignment="center"
                     android:textColor="@android:color/holo_blue_dark"
                     android:textSize="20sp"
@@ -56,14 +79,13 @@
 
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="55dp"
+                android:layout_height="45dp"
                 android:orientation="horizontal">
 
                 <Spinner
                     android:id="@+id/countrySpinner2"
                     android:layout_width="220dp"
-                    android:layout_height="45dp"
-                    android:layout_marginTop="3dp"
+                    android:layout_height="40dp"
                     android:background="@android:color/background_light"
                     tools:layout_editor_absoluteX="8dp"
                     tools:layout_editor_absoluteY="0dp" />
@@ -73,9 +95,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
+                    android:digits="0123456789."
                     android:ems="10"
                     android:inputType="numberDecimal"
-                    android:digits="0123456789."
                     android:textAlignment="center"
                     android:textColor="@android:color/holo_blue_dark"
                     android:textSize="20sp"
@@ -84,14 +106,13 @@
 
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="55dp"
+                android:layout_height="45dp"
                 android:orientation="horizontal">
 
                 <Spinner
                     android:id="@+id/countrySpinner3"
                     android:layout_width="220dp"
-                    android:layout_height="45dp"
-                    android:layout_marginTop="3dp"
+                    android:layout_height="40dp"
                     android:background="@android:color/background_light"
                     tools:layout_editor_absoluteX="8dp"
                     tools:layout_editor_absoluteY="0dp" />
@@ -101,9 +122,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
+                    android:digits="0123456789."
                     android:ems="10"
                     android:inputType="numberDecimal"
-                    android:digits="0123456789."
                     android:textAlignment="center"
                     android:textColor="@android:color/holo_blue_dark"
                     android:textSize="20sp"
@@ -112,14 +133,13 @@
 
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="55dp"
+                android:layout_height="45dp"
                 android:orientation="horizontal">
 
                 <Spinner
                     android:id="@+id/countrySpinner4"
                     android:layout_width="220dp"
-                    android:layout_height="45dp"
-                    android:layout_marginTop="3dp"
+                    android:layout_height="40dp"
                     android:background="@android:color/background_light"
                     tools:layout_editor_absoluteX="8dp"
                     tools:layout_editor_absoluteY="0dp" />
@@ -129,9 +149,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
+                    android:digits="0123456789."
                     android:ems="10"
                     android:inputType="numberDecimal"
-                    android:digits="0123456789."
                     android:textAlignment="center"
                     android:textColor="@android:color/holo_blue_dark"
                     android:textSize="20sp"
@@ -144,23 +164,26 @@
 
         <LinearLayout
             android:layout_width="120dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginLeft="40dp"
             android:orientation="vertical">
 
             <Button
                 android:id="@+id/button"
-                android:layout_width="57dp"
-                android:layout_height="56dp"
-                android:layout_marginLeft="65dp"
+                android:layout_width="37dp"
+                android:layout_height="37dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginLeft="80dp"
                 android:background="@drawable/reload"
-                android:onClick="onRefresh"/>
+                android:backgroundTint="@android:color/holo_blue_dark"
+                android:onClick="onRefresh"
+                android:textAlignment="textEnd" />
 
             <Button
                 android:id="@+id/convertButton"
                 android:layout_width="match_parent"
-                android:layout_height="45dp"
-                android:layout_marginTop="15dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="80dp"
                 android:background="@color/colorPrimary"
                 android:backgroundTint="@android:color/holo_blue_dark"
                 android:onClick="onConvert"
@@ -172,7 +195,7 @@
             <Button
                 android:id="@+id/viewTaxesButton"
                 android:layout_width="match_parent"
-                android:layout_height="45dp"
+                android:layout_height="40dp"
                 android:layout_marginTop="5dp"
                 android:background="@android:color/darker_gray"
                 android:backgroundTint="@android:color/darker_gray"

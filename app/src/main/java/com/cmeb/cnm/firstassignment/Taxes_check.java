@@ -65,8 +65,7 @@ public class Taxes_check extends Activity {
         button_list.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
-                back_button_intent = new Intent(Taxes_check.this, CurrencyConversionApp.class);
-                startActivity(back_button_intent);
+                finish();
             }
         });
 
