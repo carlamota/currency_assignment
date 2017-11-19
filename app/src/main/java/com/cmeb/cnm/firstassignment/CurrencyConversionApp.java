@@ -95,11 +95,12 @@ public class CurrencyConversionApp extends Activity {
                 getCurrencies.execute();
 
                 if(internetConnection){
-                    write();
+
                     Toast.makeText(getApplicationContext(),
                             "Currency Taxes Updated!",
                             Toast.LENGTH_SHORT)
-                            .show();}
+                            .show();
+                write();}
                 else
                     read();
             }
@@ -116,7 +117,7 @@ public class CurrencyConversionApp extends Activity {
                 onRestoreInstanceState(savedInstanceState);
                 initializeRows();
                 updateTextColors();
-            }
+           }
         }
 
 
@@ -538,6 +539,7 @@ public class CurrencyConversionApp extends Activity {
 
                     }
 
+                    write();
 
                 } catch (final JSONException e) {
                     Log.e(TAG, "Json parsing error: " + e.getMessage());
@@ -584,26 +586,27 @@ public class CurrencyConversionApp extends Activity {
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        if(withDatabase) {
+
             savedInstanceState.putBoolean("initialized", initialized);
             savedInstanceState.putIntArray("selections", selections);
             savedInstanceState.putInt("lastChanged", lastChanged);
-            savedInstanceState.putBoolean("withDatabase", withDatabase);
-            super.onSaveInstanceState(savedInstanceState);
-        }
+
+        savedInstanceState.putBoolean("withDatabase", withDatabase);
+        super.onSaveInstanceState(savedInstanceState);
     }
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
 
+        super.onRestoreInstanceState(savedInstanceState);
+        withDatabase = savedInstanceState.getBoolean("withDatabase");
 
-if(withDatabase) {
-    super.onRestoreInstanceState(savedInstanceState);
+
+
     initialized = savedInstanceState.getBoolean("initialized");
     selections = savedInstanceState.getIntArray("selections");
-    withDatabase = savedInstanceState.getBoolean("withDatabase");
     lastChanged = savedInstanceState.getInt("lastChanged");
-}
+
     }
 
     public class DecimalDigitsInputFilter implements InputFilter {
