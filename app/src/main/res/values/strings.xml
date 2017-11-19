@@ -6,4 +6,5 @@
     <string name="country_name" />
     <string name="convertButton">Convert</string>
     <string name="viewTaxesButton">View Taxes</string>
+    <string name="Currency">Coinverter</string>
 </resources>

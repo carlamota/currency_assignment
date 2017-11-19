@@ -70,6 +70,7 @@ public class CurrencyConversionApp extends Activity {
     private boolean initialized;
     private boolean internetConnection;
     private boolean userSelection;
+    private boolean withDatabase;
     private ArrayList<Currency> currencies_global = null;
     LayoutInflater inflator;
     // URL to get contacts JSON
@@ -82,26 +83,40 @@ public class CurrencyConversionApp extends Activity {
         setContentView(R.layout.convert_layout);
         inflator = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         userSelection = false;
+
         if (savedInstanceState == null){
             selections = new int[] {0, 29, 8, 3};
             lastChanged = 0;
             initialized = false;
+            withDatabase = false;
 
             if (currencies_global==null) {
                 GetCurrencies getCurrencies = new GetCurrencies();
                 getCurrencies.execute();
 
-                if(internetConnection)
+                if(internetConnection){
                     write();
+                    Toast.makeText(getApplicationContext(),
+                            "Currency Taxes Updated!",
+                            Toast.LENGTH_SHORT)
+                            .show();}
                 else
                     read();
             }
         }
         else {
-            read();
-            onRestoreInstanceState(savedInstanceState);
-            initializeRows();
-            updateTextColors();
+            if(withDatabase == false)
+            {
+
+
+
+            }
+            else{
+                read();
+                onRestoreInstanceState(savedInstanceState);
+                initializeRows();
+                updateTextColors();
+            }
         }
 
 
@@ -109,12 +124,17 @@ public class CurrencyConversionApp extends Activity {
         taxesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent("second_filter");
-                Bundle bundle = new Bundle();
-                bundle.putSerializable("CURRENCIES", currencies_global);
+                if(withDatabase) {
+                    Intent i = new Intent("second_filter");
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable("CURRENCIES", currencies_global);
 
-                i.putExtra("BUNDLE", bundle);
-                startActivity(i);
+                    i.putExtra("BUNDLE", bundle);
+                    startActivity(i);
+                }
+                else {
+                    Toast.makeText(getApplicationContext(),"Empty Database!",Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -240,25 +260,31 @@ public class CurrencyConversionApp extends Activity {
 
 
     public void onConvert(View v) {
+        if(withDatabase) {
             Double taxeProportion;
             Double newValue;
             Double insertedValue;
             Double referenceTaxe = currencies_global.get(selections[lastChanged]).getRate();
 
-        if(editTexts.get(lastChanged).getText().toString().length() > 0)
-            insertedValue = Double.parseDouble(editTexts.get(lastChanged).getText().toString());
-        else {
-            insertedValue = 1.00;
-            editTexts.get(lastChanged).setText("1.00");
-        }
+            if (editTexts.get(lastChanged).getText().toString().length() > 0)
+                insertedValue = Double.parseDouble(editTexts.get(lastChanged).getText().toString());
+            else {
+                insertedValue = 1.00;
+                editTexts.get(lastChanged).setText("1.00");
+            }
             for (int j = 0; j < 4; j++) {
                 if (j != lastChanged) {
                     taxeProportion = currencies_global.get(selections[j]).getRate() / referenceTaxe;
                     newValue = insertedValue * taxeProportion;
-                    editTexts.get(j).setText(String.format("%.2f", newValue).replaceAll(",", "."));}
+                    editTexts.get(j).setText(String.format("%.2f", newValue).replaceAll(",", "."));
+                }
             }
 
-       updateTextColors();
+            updateTextColors();
+        }
+        else {
+            Toast.makeText(getApplicationContext(),"Empty Database!",Toast.LENGTH_SHORT).show();
+        }
     }
 
     class NewAdapter extends BaseAdapter {
@@ -329,17 +355,8 @@ public class CurrencyConversionApp extends Activity {
 
     }
 
-public void setSpinnerSelection(){
 
 
-
-}
-
-    public void onViewTaxes(View v) {
-
-        setContentView(R.layout.taxes_layout);
-
-    }
 
 
     private class GetCurrencies extends AsyncTask<Void, Void, Void> {
@@ -361,6 +378,7 @@ public void setSpinnerSelection(){
                     JSONObject currencies = jsonObj.getJSONObject("rates");
 
                     JSONArray names = currencies.names();
+                    withDatabase = true;
                     currencies_global = new ArrayList<>();
                     currencies_global.add(new Currency("Euro", (R.drawable.europe), 1));
 
@@ -517,7 +535,9 @@ public void setSpinnerSelection(){
                                 break;
                             }
                         }
+
                     }
+
 
                 } catch (final JSONException e) {
                     Log.e(TAG, "Json parsing error: " + e.getMessage());
@@ -526,7 +546,7 @@ public void setSpinnerSelection(){
                         public void run() {
                             Toast.makeText(getApplicationContext(),
                                     "Json parsing error: " + e.getMessage(),
-                                    Toast.LENGTH_LONG)
+                                    Toast.LENGTH_SHORT)
                                     .show();
                         }
                     });
@@ -539,7 +559,7 @@ public void setSpinnerSelection(){
                     public void run() {
                         Toast.makeText(getApplicationContext(),
                                 "No Internet Connection!",
-                                Toast.LENGTH_LONG)
+                                Toast.LENGTH_SHORT)
                                 .show();
                         internetConnection = false;
                     }
@@ -550,35 +570,37 @@ public void setSpinnerSelection(){
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                   initializeRows();
-                    updateTextColors();
+                    if(internetConnection) {
+                        initializeRows();
+                        updateTextColors();
+                    }
                 }
             });
 
             return null;
 
         }
-
     }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-
-        savedInstanceState.putBoolean("initialized", initialized);
-        savedInstanceState.putIntArray("selections", selections);
-        savedInstanceState.putInt("lastChanged", lastChanged);
-        super.onSaveInstanceState(savedInstanceState);
+        if(withDatabase) {
+            savedInstanceState.putBoolean("initialized", initialized);
+            savedInstanceState.putIntArray("selections", selections);
+            savedInstanceState.putInt("lastChanged", lastChanged);
+            super.onSaveInstanceState(savedInstanceState);
+        }
     }
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
 
         super.onRestoreInstanceState(savedInstanceState);
-
-        initialized = savedInstanceState.getBoolean("initialized");
-        selections = savedInstanceState.getIntArray("selections");
-        lastChanged = savedInstanceState.getInt("lastChanged");
-
+if(withDatabase) {
+    initialized = savedInstanceState.getBoolean("initialized");
+    selections = savedInstanceState.getIntArray("selections");
+    lastChanged = savedInstanceState.getInt("lastChanged");
+}
     }
 
     public class DecimalDigitsInputFilter implements InputFilter {
@@ -637,9 +659,13 @@ public void setSpinnerSelection(){
 
         GetCurrencies getCurrencies = new GetCurrencies();
         getCurrencies.execute();
-        if(internetConnection)
-        write();
-
+        if(internetConnection) {
+            write();
+            Toast.makeText(getApplicationContext(),
+                    "Currency Taxes Updated!",
+                    Toast.LENGTH_SHORT)
+                    .show();
+        }
     }
 
     public void write(){
@@ -674,8 +700,9 @@ public void setSpinnerSelection(){
             e.printStackTrace();
             Toast.makeText(getApplicationContext(),
                     "Empty Database!",
-                    Toast.LENGTH_LONG)
+                    Toast.LENGTH_SHORT)
                     .show();
+            withDatabase=false;
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
