@@ -69,7 +69,7 @@ public class CurrencyConversionApp extends Activity {
     private Integer lastChanged;
     private boolean initialized;
     private boolean internetConnection;
-
+    private boolean userSelection;
     private ArrayList<Currency> currencies_global = null;
     LayoutInflater inflator;
     // URL to get contacts JSON
@@ -80,24 +80,30 @@ public class CurrencyConversionApp extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.convert_layout);
-
-        final String teste = "TESTE!!";
-
+        inflator = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        userSelection = false;
         if (savedInstanceState == null){
             selections = new int[] {0, 29, 8, 3};
             lastChanged = 0;
             initialized = false;
+
+            if (currencies_global==null) {
+                GetCurrencies getCurrencies = new GetCurrencies();
+                getCurrencies.execute();
+
+                if(internetConnection)
+                    write();
+                else
+                    read();
+            }
+        }
+        else {
+            read();
+            onRestoreInstanceState(savedInstanceState);
+            initializeRows();
+            updateTextColors();
         }
 
-          if (currencies_global==null) {
-              GetCurrencies getCurrencies = new GetCurrencies();
-              getCurrencies.execute();
-
-              if(internetConnection)
-                  write();
-              else
-                  read();
-          }
 
         taxesButton = findViewById(R.id.viewTaxesButton);
         taxesButton.setOnClickListener(new View.OnClickListener() {
@@ -112,7 +118,7 @@ public class CurrencyConversionApp extends Activity {
             }
         });
 
-        inflator = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
     }
 
     @Override
@@ -168,8 +174,10 @@ public class CurrencyConversionApp extends Activity {
             }
 
             spinners.get(i).setAdapter(new NewAdapter());
-            spinners.get(i).setSelection(selections[i]);
-            spinners.get(i).setOnItemSelectedListener( new NewItemSelectedListener(i));
+            spinners.get(i).setSelection(selections[i], false);
+            NewItemSelectedListener listener = new NewItemSelectedListener(i);
+            spinners.get(i).setOnItemSelectedListener( listener);
+            spinners.get(i).setOnTouchListener(listener);
             editTexts.get(i).setOnTouchListener(new NewOnTouchListener(i));
             editTexts.get(i).setFilters(new InputFilter[] {new DecimalDigitsInputFilter(2)});
         }
@@ -190,26 +198,46 @@ public class CurrencyConversionApp extends Activity {
         }
     }
 
-    public class NewItemSelectedListener implements AdapterView.OnItemSelectedListener {
+    public class NewItemSelectedListener implements AdapterView.OnItemSelectedListener, View.OnTouchListener {
 
         private int j;
 
         public NewItemSelectedListener(int j) { this.j = j; }
 
-        public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-            selections[j]=pos;
-            lastChanged=j;
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            userSelection = true;
+            return false;
+        }
 
-            if (!initialized){
-                if (j==3){
-                    initialized=true;
-                    lastChanged = 0;
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+
+            if(userSelection) {
+                userSelection = false;
+                selections[j] = pos;
+                lastChanged = j;
+
+                if (!initialized) {
+                    if (j == 3) {
+                        initialized = true;
+                        lastChanged = 0;
+                    }
                 }
             }
         }
 
         public void onNothingSelected(AdapterView parent) {}
     }
+
+    public void updateTextColors(){
+        for (int j = 0; j < 4; j++){
+            if (j!=lastChanged)
+              editTexts.get(j).setTextColor(Color.parseColor("#ff0099cc"));
+            else  editTexts.get(j).setTextColor(Color.GRAY);
+         }
+    }
+
 
     public void onConvert(View v) {
             Double taxeProportion;
@@ -219,20 +247,20 @@ public class CurrencyConversionApp extends Activity {
 
         if(editTexts.get(lastChanged).getText().toString().length() > 0)
             insertedValue = Double.parseDouble(editTexts.get(lastChanged).getText().toString());
-        else
+        else {
             insertedValue = 1.00;
-
+            editTexts.get(lastChanged).setText("1.00");
+        }
             for (int j = 0; j < 4; j++) {
                 if (j != lastChanged) {
                     taxeProportion = currencies_global.get(selections[j]).getRate() / referenceTaxe;
                     newValue = insertedValue * taxeProportion;
-                    editTexts.get(j).setText(String.format("%.2f", newValue).replaceAll(",", "."));
-                    editTexts.get(j).setTextColor(Color.parseColor("#ff0099cc"));
-                }
-                else editTexts.get(j).setTextColor(Color.GRAY);
+                    editTexts.get(j).setText(String.format("%.2f", newValue).replaceAll(",", "."));}
             }
 
+       updateTextColors();
     }
+
     class NewAdapter extends BaseAdapter {
 
         @Override
@@ -300,6 +328,12 @@ public class CurrencyConversionApp extends Activity {
         }
 
     }
+
+public void setSpinnerSelection(){
+
+
+
+}
 
     public void onViewTaxes(View v) {
 
@@ -436,14 +470,8 @@ public class CurrencyConversionApp extends Activity {
                                 break;
                             }
                             case("PLN"):{
-                                Currency cur = new Currency("Philippine Piso", (R.drawable.philippines), currencies.getDouble(names.getString(k)));
+                                Currency cur = new Currency("Polish Zloty", (R.drawable.poland), currencies.getDouble(names.getString(k)));
                                 currencies_global.add(cur);
-
-                                /////////////////////////////////////////////////
-                      //          currencies_global.get(i).setName("Philippine Piso");
-                      //          currencies_global.get(i).setFlag(R.drawable.philippines);
-                                //////////////////////////////
-
                                 break;
                             }
                             case("RON"):{
@@ -523,6 +551,7 @@ public class CurrencyConversionApp extends Activity {
                 @Override
                 public void run() {
                    initializeRows();
+                    updateTextColors();
                 }
             });
 
@@ -549,6 +578,7 @@ public class CurrencyConversionApp extends Activity {
         initialized = savedInstanceState.getBoolean("initialized");
         selections = savedInstanceState.getIntArray("selections");
         lastChanged = savedInstanceState.getInt("lastChanged");
+
     }
 
     public class DecimalDigitsInputFilter implements InputFilter {

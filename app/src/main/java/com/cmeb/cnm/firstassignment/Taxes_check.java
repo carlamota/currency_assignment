@@ -146,7 +146,6 @@ public class Taxes_check extends Activity {
         }
 
 
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         @Override
         public View getView(int i, View convertView, ViewGroup parent) {
 
@@ -165,9 +164,9 @@ public class Taxes_check extends Activity {
                     rateValue.setTextColor(Color.parseColor("#ff0099cc"));
                 }
                 else{
-                    currencyName.setTextColor(Color.GRAY);
-                    rateValue.setTextColor(Color.GRAY);
-                }
+                    currencyName.setTextColor(Color.BLACK);
+                    rateValue.setTextColor(Color.BLACK);}
+
             } else {
                 ImageView icon = convertView.findViewById(R.id.flag);
                 icon.setImageResource(currencies_global.get(i).getFlag());
@@ -187,7 +186,6 @@ public class Taxes_check extends Activity {
             return convertView;
         }
 
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     }
 
 
