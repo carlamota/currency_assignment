@@ -70,7 +70,7 @@ public class CurrencyConversionApp extends Activity {
     private boolean initialized;
     private boolean internetConnection;
     private boolean userSelection;
-    private boolean withDatabase;
+    private boolean withDatabase = true;
     private ArrayList<Currency> currencies_global = null;
     LayoutInflater inflator;
     // URL to get contacts JSON
@@ -588,6 +588,7 @@ public class CurrencyConversionApp extends Activity {
             savedInstanceState.putBoolean("initialized", initialized);
             savedInstanceState.putIntArray("selections", selections);
             savedInstanceState.putInt("lastChanged", lastChanged);
+            savedInstanceState.putBoolean("withDatabase", withDatabase);
             super.onSaveInstanceState(savedInstanceState);
         }
     }
@@ -595,10 +596,12 @@ public class CurrencyConversionApp extends Activity {
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
 
-        super.onRestoreInstanceState(savedInstanceState);
+
 if(withDatabase) {
+    super.onRestoreInstanceState(savedInstanceState);
     initialized = savedInstanceState.getBoolean("initialized");
     selections = savedInstanceState.getIntArray("selections");
+    withDatabase = savedInstanceState.getBoolean("withDatabase");
     lastChanged = savedInstanceState.getInt("lastChanged");
 }
     }
