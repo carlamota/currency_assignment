@@ -70,7 +70,6 @@ public class CurrencyConversionApp extends Activity {
     private boolean initialized;
     private boolean internetConnection;
     private boolean userSelection;
-    private boolean withDatabase = true;
     private ArrayList<Currency> currencies_global = null;
     LayoutInflater inflator;
     // URL to get contacts JSON
@@ -88,7 +87,6 @@ public class CurrencyConversionApp extends Activity {
             selections = new int[] {0, 29, 8, 3};
             lastChanged = 0;
             initialized = false;
-            withDatabase = false;
 
             if (currencies_global==null) {
                 GetCurrencies getCurrencies = new GetCurrencies();
@@ -100,24 +98,16 @@ public class CurrencyConversionApp extends Activity {
                             "Currency Taxes Updated!",
                             Toast.LENGTH_SHORT)
                             .show();
-                write();}
+                    write();}
                 else
                     read();
             }
         }
         else {
-            if(withDatabase == false)
-            {
-
-
-
-            }
-            else{
                 read();
                 onRestoreInstanceState(savedInstanceState);
                 initializeRows();
                 updateTextColors();
-           }
         }
 
 
@@ -125,51 +115,17 @@ public class CurrencyConversionApp extends Activity {
         taxesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(withDatabase) {
                     Intent i = new Intent("second_filter");
                     Bundle bundle = new Bundle();
                     bundle.putSerializable("CURRENCIES", currencies_global);
 
                     i.putExtra("BUNDLE", bundle);
                     startActivity(i);
-                }
-                else {
-                    Toast.makeText(getApplicationContext(),"Empty Database!",Toast.LENGTH_SHORT).show();
-                }
+
             }
         });
 
 
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
     }
 
     private void initializeRows() {
@@ -241,9 +197,7 @@ public class CurrencyConversionApp extends Activity {
                 lastChanged = j;
 
                 if (!initialized) {
-
                         initialized = true;
-
                 }
             }
         }
@@ -261,7 +215,6 @@ public class CurrencyConversionApp extends Activity {
 
 
     public void onConvert(View v) {
-        if(withDatabase) {
             Double taxeProportion;
             Double newValue;
             Double insertedValue;
@@ -280,12 +233,7 @@ public class CurrencyConversionApp extends Activity {
                     editTexts.get(j).setText(String.format("%.2f", newValue).replaceAll(",", "."));
                 }
             }
-
             updateTextColors();
-        }
-        else {
-            Toast.makeText(getApplicationContext(),"Empty Database!",Toast.LENGTH_SHORT).show();
-        }
     }
 
     class NewAdapter extends BaseAdapter {
@@ -357,9 +305,6 @@ public class CurrencyConversionApp extends Activity {
     }
 
 
-
-
-
     private class GetCurrencies extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... arg0) {
@@ -379,7 +324,6 @@ public class CurrencyConversionApp extends Activity {
                     JSONObject currencies = jsonObj.getJSONObject("rates");
 
                     JSONArray names = currencies.names();
-                    withDatabase = true;
                     currencies_global = new ArrayList<>();
                     currencies_global.add(new Currency("Euro", (R.drawable.europe), 1));
 
@@ -539,7 +483,18 @@ public class CurrencyConversionApp extends Activity {
 
                     }
 
-                    write();
+                    runOnUiThread(new Runnable() {
+                                      @Override
+                                      public void run() {
+                                          initializeRows();
+                                          updateTextColors();
+                                          write();
+                                          Toast.makeText(getApplicationContext(),
+                                                  "Currency Taxes Updated!",
+                                                  Toast.LENGTH_SHORT)
+                                                  .show();
+                                      }
+                                  });
 
                 } catch (final JSONException e) {
                     Log.e(TAG, "Json parsing error: " + e.getMessage());
@@ -550,6 +505,10 @@ public class CurrencyConversionApp extends Activity {
                                     "Json parsing error: " + e.getMessage(),
                                     Toast.LENGTH_SHORT)
                                     .show();
+                            internetConnection = false;
+                            read();
+                            initializeRows();
+                            updateTextColors();
                         }
                     });
 
@@ -564,7 +523,10 @@ public class CurrencyConversionApp extends Activity {
                                 Toast.LENGTH_SHORT)
                                 .show();
                         internetConnection = false;
-                    }
+                        read();
+                        initializeRows();
+                        updateTextColors();}
+
                 });
 
             }
@@ -575,6 +537,7 @@ public class CurrencyConversionApp extends Activity {
                     if(internetConnection) {
                         initializeRows();
                         updateTextColors();
+                        write();
                     }
                 }
             });
@@ -590,8 +553,6 @@ public class CurrencyConversionApp extends Activity {
             savedInstanceState.putBoolean("initialized", initialized);
             savedInstanceState.putIntArray("selections", selections);
             savedInstanceState.putInt("lastChanged", lastChanged);
-
-        savedInstanceState.putBoolean("withDatabase", withDatabase);
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -599,10 +560,6 @@ public class CurrencyConversionApp extends Activity {
     public void onRestoreInstanceState(Bundle savedInstanceState) {
 
         super.onRestoreInstanceState(savedInstanceState);
-        withDatabase = savedInstanceState.getBoolean("withDatabase");
-
-
-
     initialized = savedInstanceState.getBoolean("initialized");
     selections = savedInstanceState.getIntArray("selections");
     lastChanged = savedInstanceState.getInt("lastChanged");
@@ -665,13 +622,13 @@ public class CurrencyConversionApp extends Activity {
 
         GetCurrencies getCurrencies = new GetCurrencies();
         getCurrencies.execute();
-        if(internetConnection) {
+       /* if(internetConnection) {
             write();
             Toast.makeText(getApplicationContext(),
                     "Currency Taxes Updated!",
                     Toast.LENGTH_SHORT)
                     .show();
-        }
+        }*/
     }
 
     public void write(){
@@ -702,18 +659,59 @@ public class CurrencyConversionApp extends Activity {
             input.close();
         } catch (StreamCorruptedException e) {
             e.printStackTrace();
+            createProvisoryFile();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            Toast.makeText(getApplicationContext(),
-                    "Empty Database!",
-                    Toast.LENGTH_SHORT)
-                    .show();
-            withDatabase=false;
+            createProvisoryFile();
         } catch (IOException e) {
             e.printStackTrace();
+            createProvisoryFile();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
+            createProvisoryFile();
         }
+
+    }
+
+    public void createProvisoryFile(){
+
+currencies_global = new ArrayList<>();
+
+        currencies_global.add(new Currency("Euro", (R.drawable.europe), 1));
+        currencies_global.add(new Currency("Bulgarian Lev", (R.drawable.bulgaria),  1.9558));
+        currencies_global.add(new Currency("Brazilian Real", (R.drawable.brazil), 3.8658));
+        currencies_global.add(new Currency("Canadian Dollar", (R.drawable.canada), 1.5053));
+        currencies_global.add(new Currency("Swiss Franc", (R.drawable.switzerland), 1.1696));
+        currencies_global.add( new Currency("Chinese Yuan", (R.drawable.china), 7.8239));
+        currencies_global.add(new Currency("Czech Koruna", (R.drawable.czech), 25.588));
+            currencies_global.add( new Currency("British Pound", (R.drawable.unitedkingdom), 0.89385));
+        currencies_global.add(new Currency("Hong Kong Dollar", (R.drawable.hongkong), 7.5663));
+        currencies_global.add( new Currency("Croatian Kuna", (R.drawable.croatia), 7.5663));
+            currencies_global.add( new Currency("Hungarian Forint", (R.drawable.hungary), 311.58));
+            currencies_global.add( new Currency("Indesian Rupiah", (R.drawable.indonesia), 15956.0));
+            currencies_global.add( new Currency("Isreali New Shekel", (R.drawable.israel), 4.1463));
+            currencies_global.add(new Currency("Indian Rupee", (R.drawable.india), 76.682));
+            currencies_global.add( new Currency("Japanese Yen", (R.drawable.japan), 132.82));
+                currencies_global.add(new Currency("South Korean Won", (R.drawable.southkorea), 1293.1));
+            currencies_global.add(new Currency("Mexican Peso", (R.drawable.mexico), 22.46));
+            currencies_global.add( new Currency("Malaysian Ringgit", (R.drawable.malaysia), 4.9079));
+        currencies_global.add( new Currency("Norwegian Krone", (R.drawable.norway),9.7163));
+            currencies_global.add(new Currency("New Zeeland Dollar", (R.drawable.newzealand), 1.7372));
+            currencies_global.add(new Currency("Polish Zloty", (R.drawable.poland), 4.2342));
+            currencies_global.add( new Currency("Romanian Leu", (R.drawable.romania), 4.647));
+            currencies_global.add(new Currency("Russian Rubble", (R.drawable.russia), 70.046));
+                currencies_global.add(new Currency("Swedish Krona", (R.drawable.sweden), 9.9443));
+                currencies_global.add(new Currency("Singapore Dollar", (R.drawable.singapore), 1.5998));
+                currencies_global.add(new Currency("Thai Baht", (R.drawable.thailand), 38.723));
+                currencies_global.add(new Currency("Turkish Lira", (R.drawable.turkey), 4.5846));
+                currencies_global.add(new Currency("USA Dollar", (R.drawable.usa), 1.1795));
+                currencies_global.add(new Currency("South African Rand", (R.drawable.southafrica), 16.528));
+                currencies_global.add(new Currency("Australian Dollar", (R.drawable.australia),  1.5632));
+
+        Toast.makeText(getApplicationContext(),
+                "Refresh to update currency taxes!",
+                Toast.LENGTH_SHORT)
+                .show();
 
     }
 
